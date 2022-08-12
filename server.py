@@ -8,6 +8,18 @@ from ariadne import (
 
 from ariadne.asgi import GraphQL
 from fastapi import FastAPI
+from mysql.connector import pooling
+
+dbconfig = {
+  "database": "Todo",
+  "user":     "root",
+  "password": "example"
+}
+
+cnxpool = pooling.MySQLConnectionPool(pool_name = "mypool",
+                                                      pool_size = 3,
+                                                      **dbconfig)
+                                                      
 type_defs = gql("""
     type Query{
         test: String
