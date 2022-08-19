@@ -13,18 +13,13 @@ from mysql.connector import pooling
 dbconfig = {
   "database": "Todo",
   "user":     "root",
-  "password": "example"
+  "password": "example",
+
 }
 
 cnxpool = pooling.MySQLConnectionPool(pool_name = "mypool",
                                                       pool_size = 3,
                                                       **dbconfig)
-
-connection = cnxpool.get_connection()
-c = connection.cursor()
-connection.execute("INSERT INTO Todo.Task (title,description) VALUES (%s,%s)"% ("title","description"))
-connection.commit()
-connection.close()
 
 type_defs = gql("""
     type Query{
@@ -59,6 +54,23 @@ def resolve_test(obj,info):
 mutation = MutationType()
 @mutation.field("setTask")
 def resolve_set_task(obj,info,task):
+    connection = cnxpool.get_connection()
+    c = connection.cursor()
+    c.execute("INSERT INTO Todo.Task (title,description) VALUES (%s,%s)",(task["title"],task["description"]))
+    connection.commit()
+    c.execute("SELECT * FROM Task order by id desc limit 1")
+
+    myresult = c.fetchall()
+    connection.close()
+
+    for x in myresult:
+        return {
+            "id": x[0],
+            "title": x[1],
+            "description": x[2],
+            "timestamp": x[3],
+        }
+    
     return task
 #end region
 
