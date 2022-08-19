@@ -5,5 +5,5 @@ create table Task(
     title varchar(255) not null,
     description varchar(255) not null,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (ID)
+    primary key(id)
 );
