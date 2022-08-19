@@ -3,7 +3,7 @@ from ariadne import (
     make_executable_schema,
     QueryType,
     MutationType,
-    ObjectType
+    ObjectType,
 )
 
 from ariadne.asgi import GraphQL
@@ -19,7 +19,13 @@ dbconfig = {
 cnxpool = pooling.MySQLConnectionPool(pool_name = "mypool",
                                                       pool_size = 3,
                                                       **dbconfig)
-                                                      
+
+connection = cnxpool.get_connection()
+c = connection.cursor()
+connection.execute("INSERT INTO Todo.Task (title,description) VALUES (%s,%s)"% ("title","description"))
+connection.commit()
+connection.close()
+
 type_defs = gql("""
     type Query{
         test: String
@@ -57,7 +63,7 @@ def resolve_set_task(obj,info,task):
 #end region
 
 #region Task
-task = ObjectType()
+task = ObjectType("Task")
 @task.field("id")
 def resolve_task_task(obj,info):
     return obj["id"]
